@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.LinkedList;
 import java.util.TreeSet;
 
 /**
@@ -21,13 +22,13 @@ public class AppTest {
         String filePath = "";
         String outDir = "";
         String tableName = "user";
-        TreeSet fieldSet = new TreeSet();
-        fieldSet.add("id");
-        fieldSet.add("username");
-        fieldSet.add("password");
+        LinkedList fieldList = new LinkedList();
+        fieldList.add("id");
+        fieldList.add("username");
+        fieldList.add("password");
         File file = new File(filePath);
         InputStream inputStream = new FileInputStream(file);
-        ExcelToSql.excelToSql(inputStream, outDir, tableName, fieldSet,true);
+        ExcelToSql.excelToSql(inputStream, outDir, tableName, fieldList,true);
     }
 
     @Test
