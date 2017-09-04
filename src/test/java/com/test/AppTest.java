@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.LinkedList;
-import java.util.TreeSet;
 
 /**
  * 测试类
@@ -19,8 +18,8 @@ public class AppTest {
 
     @Test
     public void testExcelToSql() throws Exception {
-        String filePath = "";
-        String outDir = "";
+        String filePath = "D:/work";
+        String outDir = "D:/work";
         String tableName = "user";
         LinkedList fieldList = new LinkedList();
         fieldList.add("id");
