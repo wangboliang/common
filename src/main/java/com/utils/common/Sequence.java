@@ -1,8 +1,6 @@
 package com.utils.common;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.util.StringUtil;
-import org.junit.gen5.commons.util.StringUtils;
 
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
@@ -72,7 +70,7 @@ public class Sequence {
         StringBuilder mpid = new StringBuilder();
         mpid.append(datacenterId);
         String name = ManagementFactory.getRuntimeMXBean().getName();
-        if (StringUtils.isNotEmpty(name)) {
+        if (null != name && !"".equals(name)) {
             /*
              * GET jvmPid
 			 */
