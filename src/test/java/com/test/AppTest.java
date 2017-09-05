@@ -1,12 +1,16 @@
 package com.test;
 
-import com.utils.common.ExcelToSqlConvertor;
+import com.domain.User;
 import com.utils.common.IdWorker;
+import com.utils.database.ExcelToSqlConvertor;
+import com.utils.database.ListToSql;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 测试类
@@ -22,6 +26,21 @@ public class AppTest {
         String template = "INSERT INTO USER(ID,NAME,AGE) VALUES(':0', ':1', ':2');";
         FileInputStream inputStream = new FileInputStream(new File(xlsFile));
         ExcelToSqlConvertor.convert(inputStream, sqlFile, template, null, null, null);
+    }
+
+    @Test
+    public void testListToSql() throws Exception {
+        String sqlFile = "C:\\Users\\dell\\Desktop\\user.sql";
+        List list = new ArrayList<>();
+        User o1 = new User(Long.valueOf(1), "Alan", "18");
+        User o2 = new User(Long.valueOf(2), "Bard", "25");
+        User o3 = new User(Long.valueOf(3), "Carr", "28");
+        list.add(o1);
+        list.add(o2);
+        list.add(o3);
+        // 其中:id  :name  :age 为类属性名称
+        String template = "INSERT INTO USER(ID,NAME,AGE) VALUES(':id', ':name', ':age');";
+        ListToSql.generateSqlScripFile(list, template, sqlFile);
     }
 
     @Test
