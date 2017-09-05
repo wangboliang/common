@@ -1,4 +1,4 @@
-package com.utils.common;
+package com.utils.database;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;

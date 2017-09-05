@@ -1,4 +1,4 @@
-package com.utils.common;
+package com.utils.database;
 
 /**
  * <p>
@@ -55,7 +55,7 @@ public class ExcelToSqlConvertor {
         Sheet sheet = workbook.getSheetAt(sheetIndex);
 
         // 获取sql中的所有字段点位符
-        Matcher matcher = Pattern.compile("(:\\d)").matcher(template);
+        Matcher matcher = Pattern.compile("(:\\d+)").matcher(template);
         List<Integer> columns = new ArrayList();
         while (matcher.find()) {
             columns.add(Integer.valueOf(matcher.group().replace(":", "")));
