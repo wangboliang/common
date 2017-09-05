@@ -11,7 +11,7 @@
         <slf4j.version>1.7.5</slf4j.version>
         <lombok.version>1.16.8</lombok.version>
         <junit.version>4.9</junit.version>
-        <druid.version>1.0.7</druid.version>
+        <druid.version>1.0.26</druid.version>
     </properties>
 
     <dependencies>

@@ -1,14 +1,12 @@
 package com.test;
 
-import com.utils.common.ExcelToSql;
+import com.utils.common.ExcelToSqlConvertor;
 import com.utils.common.IdWorker;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.LinkedList;
 
 /**
  * 测试类
@@ -18,16 +16,12 @@ public class AppTest {
 
     @Test
     public void testExcelToSql() throws Exception {
-        String filePath = "D:/work";
-        String outDir = "D:/work";
-        String tableName = "user";
-        LinkedList fieldList = new LinkedList();
-        fieldList.add("id");
-        fieldList.add("username");
-        fieldList.add("password");
-        File file = new File(filePath);
-        InputStream inputStream = new FileInputStream(file);
-        ExcelToSql.excelToSql(inputStream, outDir, tableName, fieldList,true);
+        String xlsFile = "C:\\Users\\dell\\Desktop\\用户信息.xls";
+        String sqlFile = "C:\\Users\\dell\\Desktop\\user.sql";
+        // 其中:0  :1  :2  为值所在excel的列号
+        String template = "INSERT INTO USER(ID,NAME,AGE) VALUES(':0', ':1', ':2');";
+        FileInputStream inputStream = new FileInputStream(new File(xlsFile));
+        ExcelToSqlConvertor.convert(inputStream, sqlFile, template, null, null, null);
     }
 
     @Test
