@@ -2,7 +2,7 @@ package com.test;
 
 import com.domain.User;
 import com.utils.common.IdWorker;
-import com.utils.database.ExcelToSqlConvertor;
+import com.utils.database.ExcelToSql;
 import com.utils.database.ListToSql;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -25,7 +25,7 @@ public class AppTest {
         // 其中:0  :1  :2  为值所在excel的列号
         String template = "INSERT INTO USER(ID,NAME,AGE) VALUES(':0', ':1', ':2');";
         FileInputStream inputStream = new FileInputStream(new File(xlsFile));
-        ExcelToSqlConvertor.convert(inputStream, sqlFile, template, null, null, null);
+        ExcelToSql.convert(inputStream, sqlFile, template, null, null, null);
     }
 
     @Test
@@ -47,6 +47,17 @@ public class AppTest {
     public void testGenerateUUID() throws Exception {
         Long id = IdWorker.getId();
         log.info("generate id is : {} ", id);
+    }
+
+
+    @Test
+    public void tesInteger() throws Exception {
+        //JDK.1.8
+        Integer a = 127, b = 127;
+        System.out.print(a == b);
+
+        Integer c = 128, d = 128;
+        System.out.print(c == d);
     }
 
 }
