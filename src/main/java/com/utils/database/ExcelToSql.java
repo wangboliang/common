@@ -1,146 +1,124 @@
 package com.utils.database;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-
 /**
  * <p>
- * excel数据生成sql脚本工具类
+ * xls转sql工具
  * </p>
  *
  * @author wangliang
- * @since 2017/8/28
+ * @since 2017/9/5
+ */
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.*;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * <p>
+ * xls转sql工具
+ * </p>
+ *
+ * @author wangliang
+ * @since 2017/9/5
  */
 @Slf4j
 public class ExcelToSql {
 
     /**
-     * excel数据生成sql脚本
+     * 将xls文件按照指定的sql语句模板转换成sql脚本。
      *
-     * @param inputStream     excel文件输入流
-     * @param outDir          sql脚本输出路径
-     * @param tableName       表名gi
-     * @param fieldList        字段集合（按cell顺序设置值）
-     * @param hasDefaultValue 是否设置默认值
-     * @return
+     * @param inputStream xls文件流
+     * @param sqlFile     要输出的sql脚本文件路径
+     * @param template    sql语句模板
+     * @param sheetIndex  xls中标签页的序号(从0开始)
+     * @param start       转换开始的行数 (从0开始)
+     * @param end         转换结束的行数 (从0开始)
+     * @throws IOException
      */
-    public static boolean excelToSql(InputStream inputStream, String outDir, String tableName, LinkedList<String> fieldList, boolean hasDefaultValue) {
-        boolean result = false;
-        try {
-            List<Map<String, String>> mapList = new ArrayList<>();
+    public static void convert(InputStream inputStream, String sqlFile, String template, Integer sheetIndex, Integer start, Integer end)
+            throws IOException, InvalidFormatException {
+        // 获取工作薄
+        Workbook workbook = WorkbookFactory.create(inputStream);
+        if (null == sheetIndex || sheetIndex < 0) {
+            sheetIndex = 0;
+        }
+        Sheet sheet = workbook.getSheetAt(sheetIndex);
 
-            //解析excel
-            Workbook workbook = WorkbookFactory.create(inputStream);
-            Sheet sheet = workbook.getSheetAt(0);
-            //排除表头
-            for (int rowNum = sheet.getFirstRowNum() + 1; rowNum < sheet.getLastRowNum(); rowNum++) {
-                Row row = sheet.getRow(rowNum);
-                if (row == null) {
-                    continue;
-                }
-                Map<String, String> map = new TreeMap<>();
-                for (int cellNum = row.getFirstCellNum(); cellNum < row.getLastCellNum(); cellNum++) {
-                    Cell cell = row.getCell(cellNum);
-                    if (cell == null) {
-                        continue;
-                    }
-                    for (int i = 0; i < fieldList.size(); i++) {
-                        if (cellNum == i) {
-                            String field = fieldList.get(i);
-                            map.put(field, cell.getStringCellValue());
-                        }
-                    }
-                }
-                mapList.add(map);
-            }
-
-            //生成sql脚本
-            List<String> sqlList = generateSql(mapList, tableName, hasDefaultValue);
-
-            String pathName = outDir + tableName + ".sql";
-            //创建sql脚本文件
-            File file = createFile(pathName);
-
-            Path filePath = Paths.get(file.getPath());
-            //写入数据到文件中
-            Files.write(filePath, sqlList, Charset.forName("UTF-8"));
-        } catch (IOException e) {
-            log.error("excel文件解析异常", e);
-        } catch (InvalidFormatException e) {
-            log.error("excel文件解析异常", e);
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (IOException io) {
-                    log.error("文件流关闭异常", io);
-                }
-            }
+        // 获取sql中的所有字段点位符
+        Matcher matcher = Pattern.compile("(:\\d+)").matcher(template);
+        List<Integer> columns = new ArrayList();
+        while (matcher.find()) {
+            columns.add(Integer.valueOf(matcher.group().replace(":", "")));
         }
 
-        return result;
+        // 输出sql脚本文件
+        PrintWriter writer = new PrintWriter(new FileWriter(sqlFile));
+        log.info("Writing sql statements to file: {} ", sqlFile);
+        log.info("-------------------------------------------------------------------------------");
+        if (null == start || start < 0) {
+            start = sheet.getFirstRowNum() + 1;//排除表头
+        }
+        if (null == end || end < 0) {
+            end = sheet.getLastRowNum() + 1;
+        }
+        for (int rowNum = start; rowNum < end; rowNum++) {
+            Row row = sheet.getRow(rowNum);
+            if (row == null) {
+                continue;
+            }
+
+            // 组装sql语句
+            String line = new String(template);
+            for (Integer column : columns) {
+                line = line.replace(":" + column, parseCellValue(row.getCell(column)));
+            }
+            log.info(line);
+            writer.println(line);
+        }
+        writer.flush();
+        writer.close();
+        log.info("-------------------------------------------------------------------------------");
     }
 
     /**
-     * 生成insert sql语句
+     * 解析单元格的数据值
      *
-     * @param mapList         字段属性名称与属性值
-     * @param tableName       表名
-     * @param hasDefaultValue 是否设置默认值
-     * @return
+     * @param cell 单元格
      */
-    public static List<String> generateSql(List<Map<String, String>> mapList, String tableName, boolean hasDefaultValue) {
-        List<String> sqlList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(sqlList)) {
-            Long nowTime = System.currentTimeMillis();
-            for (Map<String, String> map : mapList) {
-                StringBuilder fields = new StringBuilder();
-                StringBuilder values = new StringBuilder();
-                for (Map.Entry<String, String> entry : map.entrySet()) {
-                    fields.append(entry.getKey()).append(",");
-                    values.append(entry.getValue()).append(",");
-                }
-                if (hasDefaultValue) {
-                    fields.append("created_by,created_time,updated_by,updated_time,deleted,");
-                    values.append(nowTime).append(",").append(nowTime).append(nowTime).append(",").append(nowTime).append(",").append(1).append(",");
-                }
-                StringBuilder insertSql = new StringBuilder();
-                insertSql.append("INSERT INTO ").append(tableName).append("(").append(fields.substring(0, fields.length() - 1)).append(")")
-                        .append("VALUES").append("(").append(values.substring(0, values.length() - 1)).append(")");
-                sqlList.add(insertSql.toString());
+    private static String parseCellValue(Cell cell) {
+        String cellValue;
+        if (null == cell) {
+            cellValue = "";
+        } else {
+            DecimalFormat df = new DecimalFormat("#");
+            switch (cell.getCellType()) {
+                case Cell.CELL_TYPE_STRING:
+                    cellValue = cell.getRichStringCellValue().getString().trim();
+                    break;
+                case Cell.CELL_TYPE_NUMERIC:
+                    cellValue = df.format(cell.getNumericCellValue()).toString();
+                    break;
+                case Cell.CELL_TYPE_BOOLEAN:
+                    cellValue = String.valueOf(cell.getBooleanCellValue()).trim();
+                    break;
+                case Cell.CELL_TYPE_FORMULA:
+                    cellValue = cell.getCellFormula();
+                    break;
+                default:
+                    cellValue = "";
             }
         }
-        return sqlList;
-    }
-
-    /**
-     * 创建文件
-     *
-     * @param pathName 文件路径
-     */
-    public static File createFile(String pathName) {
-        File file = null;
-        try {
-            file = new File(pathName);
-            //if file does not exists, then create it
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-        } catch (IOException e) {
-            log.error("文件创建失败", e);
-        }
-        return file;
+        return cellValue;
     }
 
 }
