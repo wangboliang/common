@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
+
 /**
  * <p>
  * 用户信息实体类
@@ -15,12 +17,15 @@ import lombok.ToString;
  */
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @AllArgsConstructor
-public class User {
+public class User extends Person {
 
     private Long id;
     private String name;
     private String age;
 
+    public User() {
+        super();
+    }
 }
