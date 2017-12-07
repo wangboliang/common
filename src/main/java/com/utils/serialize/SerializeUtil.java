@@ -1,4 +1,4 @@
-package com.utils.Serialize;
+package com.utils.serialize;
 
 import java.io.*;
 
