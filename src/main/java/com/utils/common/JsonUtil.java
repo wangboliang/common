@@ -2,7 +2,7 @@ package com.utils.common;
 
 /**
  * <p>
- * JSON序列化工具
+ * JSON 序列化工具
  * </p>
  *
  * @author wangliang

@@ -1,6 +1,7 @@
 package com.test;
 
 import com.domain.User;
+import com.utils.Serialize.SerializeUtil;
 import com.utils.common.IdWorker;
 import com.utils.database.ExcelToSql;
 import com.utils.database.ListToSql;
@@ -31,7 +32,7 @@ public class AppTest {
     @Test
     public void testListToSql() throws Exception {
         String sqlFile = "C:\\Users\\dell\\Desktop\\user.sql";
-        List list = new ArrayList<>();
+        List list = new ArrayList();
         User o1 = new User(Long.valueOf(1), "Alan", "18");
         User o2 = new User(Long.valueOf(2), "Bard", "25");
         User o3 = new User(Long.valueOf(3), "Carr", "28");
@@ -58,6 +59,27 @@ public class AppTest {
 
         Integer c = 128, d = 128;
         System.out.print(c == d);
+    }
+
+    /**
+     * 测试继承关系的Object序列化和反序列化
+     *
+     * @throws Exception
+     */
+    @Test
+    public void tesSerializable() throws Exception {
+        //Initializes The Object
+        User user = new User(111L, "Object序列化", "11");
+        user.setAddress("address");
+        System.out.println(user);
+
+        String path = "D:\\test.txt";
+        //Write Obj to File
+        SerializeUtil.write(user, path);
+
+        //Read Obj from File
+        Object o = SerializeUtil.read(path);
+        System.out.println(o);
     }
 
 }
