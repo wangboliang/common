@@ -1,7 +1,7 @@
 package com.test;
 
 import com.domain.User;
-import com.utils.Serialize.SerializeUtil;
+import com.utils.serialize.SerializeUtil;
 import com.utils.common.IdWorker;
 import com.utils.database.ExcelToSql;
 import com.utils.database.ListToSql;
