@@ -41,7 +41,7 @@ public class AppTest {
         list.add(o3);
         // 其中:id  :name  :age 为类属性名称
         String template = "INSERT INTO USER(ID,NAME,AGE) VALUES(':id', ':name', ':age');";
-        ListToSql.generateSqlScripFile(list, template, sqlFile);
+        ListToSql.generateSqlScriptFile(list, template, sqlFile);
     }
 
     @Test

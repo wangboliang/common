@@ -35,7 +35,7 @@ public class ListToSql {
      * @param sqlFile  要输出的sql脚本文件路径
      * @return
      */
-    public static boolean generateSqlScripFile(List list, String template, String sqlFile) {
+    public static boolean generateSqlScriptFile(List list, String template, String sqlFile) {
         boolean result = false;
         try {
 
