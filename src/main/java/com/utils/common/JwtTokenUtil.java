@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,35 +33,40 @@ public class JwtTokenUtil implements Serializable {
 
     private static Long refreshTokenExpiration = 86400L;
 
-
     /**
      * 生成Json Web Token
      *
      * @param userDetails
      * @return
      */
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails, String tokenType) {
+        Date expirationDate;
+        if ("refreshToken".equals(tokenType)) {
+            expirationDate = generateExpirationDate(refreshTokenExpiration);
+        } else {
+            expirationDate = generateExpirationDate(accessTokenExpiration);
+        }
         Map<String, Object> claims = new HashMap<>();
         claims.put(CLAIM_KEY_USERNAME, userDetails.getAccount());
         claims.put(CLAIM_KEY_CREATED, new Date());
         claims.put(CLAIM_KEY_DEVICE_ID, userDetails.getDeviceId());
-        return generateToken(claims);
+        return generateToken(claims, expirationDate);
     }
 
-    String generateToken(Map<String, Object> claims) {
+    String generateToken(Map<String, Object> claims, Date expirationDate) {
         return Jwts.builder()
                 .setClaims(claims)//数据声明
-                .setExpiration(generateExpirationDate())//过期时间
-                .signWith(SignatureAlgorithm.HS512, secret)//签名（包含算法和密钥）
+                .setExpiration(expirationDate)//过期时间
+                .signWith(SignatureAlgorithm.HS512, DatatypeConverter.parseBase64Binary(secret))//签名（包含算法和密钥）
                 .compact();
     }
 
-    private Date generateExpirationDate() {
-        return new Date(System.currentTimeMillis() + accessTokenExpiration * 1000);
+    private Date generateExpirationDate(Long expiration) {
+        return new Date(System.currentTimeMillis() + expiration * 1000);
     }
 
     /**
-     * 获取Token帐号信息
+     * 获取Token中帐号信息
      *
      * @param token
      * @return
@@ -74,6 +80,23 @@ public class JwtTokenUtil implements Serializable {
             username = null;
         }
         return username;
+    }
+
+    /**
+     * 获取Token中设备唯一标识
+     *
+     * @param token
+     * @return
+     */
+    public String getDeviceIdFromToken(String token) {
+        String deviceId;
+        try {
+            final Claims claims = getClaimsFromToken(token);
+            deviceId = (String) claims.get(CLAIM_KEY_DEVICE_ID);
+        } catch (Exception e) {
+            deviceId = null;
+        }
+        return deviceId;
     }
 
     /**
@@ -120,7 +143,7 @@ public class JwtTokenUtil implements Serializable {
         Claims claims;
         try {
             claims = Jwts.parser()
-                    .setSigningKey(secret)
+                    .setSigningKey(DatatypeConverter.parseBase64Binary(secret))
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
@@ -128,7 +151,6 @@ public class JwtTokenUtil implements Serializable {
         }
         return claims;
     }
-
 
     /**
      * 判断Token是否过期
@@ -176,7 +198,7 @@ public class JwtTokenUtil implements Serializable {
         try {
             final Claims claims = getClaimsFromToken(token);
             claims.put(CLAIM_KEY_CREATED, new Date());
-            refreshedToken = generateToken(claims);
+            refreshedToken = generateToken(claims, generateExpirationDate(accessTokenExpiration));
         } catch (Exception e) {
             refreshedToken = null;
         }
@@ -190,14 +212,25 @@ public class JwtTokenUtil implements Serializable {
      * @return
      */
     public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
-//        final Date created = getCreatedDateFromToken(token);
-//        final Date expiration = getExpirationDateFromToken(token);
-        return (
-                username.equals(userDetails.getAccount())//匹配帐号
+        Boolean result;
+        try {
+            final String username = getUsernameFromToken(token);
+
+            //数据声明为空只校验token是否过期
+            if (null == userDetails) {
+                result = (!isTokenExpired(token));
+            } else {
+//                final Date created = getCreatedDateFromToken(token);
+//                final Date expiration = getExpirationDateFromToken(token);
+                result = (userDetails.getAccount().equals(username)//匹配帐号
                         && !isTokenExpired(token)//是否过期
 //                        && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate())
-        );
+                );
+            }
+        } catch (Exception e) {
+            result = false;
+        }
+        return result;
     }
 
 }
