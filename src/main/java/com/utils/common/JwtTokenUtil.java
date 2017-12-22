@@ -4,11 +4,13 @@ import com.domain.UserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,15 +35,17 @@ public class JwtTokenUtil implements Serializable {
 
     private static Long refreshTokenExpiration = 86400L;
 
+    private static Map<String, List> cacheMap = new HashMap();
+
     /**
-     * 生成Json Web Token
+     * 生成Token
      *
      * @param userDetails
      * @return
      */
     public String generateToken(UserDetails userDetails, String tokenType) {
         Date expirationDate;
-        if ("refreshToken".equals(tokenType)) {
+        if ("refresh_token".equals(tokenType)) {
             expirationDate = generateExpirationDate(refreshTokenExpiration);
         } else {
             expirationDate = generateExpirationDate(accessTokenExpiration);
@@ -63,6 +67,109 @@ public class JwtTokenUtil implements Serializable {
 
     private Date generateExpirationDate(Long expiration) {
         return new Date(System.currentTimeMillis() + expiration * 1000);
+    }
+
+    /**
+     * 刷新Token
+     *
+     * @param oldToken
+     * @return
+     */
+    public String refreshToken(String oldToken) {
+        String refreshedToken;
+        try {
+            tokenAddToBlacklist(oldToken);
+            final Claims claims = getClaimsFromToken(oldToken);
+            claims.put(CLAIM_KEY_CREATED, new Date());
+            refreshedToken = generateToken(claims, generateExpirationDate(accessTokenExpiration));
+        } catch (Exception e) {
+            refreshedToken = null;
+        }
+        return refreshedToken;
+    }
+
+    /**
+     * 验证Token
+     *
+     * @param token
+     * @return
+     */
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        Boolean result;
+        try {
+            final String username = getUsernameFromToken(token);
+
+            //数据声明为空只校验token是否过期
+            if (null == userDetails) {
+                result = !isTokenExpired(token) && !tokenIsOnTheBlacklist(token);
+            } else {
+//                final Date created = getCreatedDateFromToken(token);
+//                final Date expiration = getExpirationDateFromToken(token);
+                result = (userDetails.getAccount().equals(username)//匹配帐号
+                        && !isTokenExpired(token)//是否过期
+                        && !tokenIsOnTheBlacklist(token)//是否在黑名单中
+//                        && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate())
+                );
+            }
+        } catch (Exception e) {
+            //don't trust the JWT!
+            result = false;
+        }
+        return result;
+    }
+
+    /**
+     * 失效Token
+     *
+     * @param token
+     * @return
+     */
+    public Boolean invalidToken(String token) {
+        Boolean result;
+        try {
+            result = tokenAddToBlacklist(token);
+        } catch (Exception e) {
+            result = false;
+        }
+        return result;
+    }
+
+    /**
+     * Token放入黑名单
+     *
+     * @param token
+     * @return
+     */
+    Boolean tokenAddToBlacklist(String token) {
+        Boolean result;
+        try {
+            List<String> tokenList = cacheMap.get("blacklist");
+            if (CollectionUtils.isNotEmpty(tokenList)) {
+                tokenList.add(token);
+                cacheMap.put("blacklist", tokenList);
+            }
+            result = true;
+        } catch (Exception e) {
+            result = false;
+        }
+        return result;
+    }
+
+    /**
+     * 判断Token是否在黑名单中
+     *
+     * @param token
+     * @return
+     */
+    Boolean tokenIsOnTheBlacklist(String token) {
+        Boolean result;
+        try {
+            List<String> tokenList = cacheMap.get("blacklist");
+            result = tokenList.contains(token);
+        } catch (Exception e) {
+            result = false;
+        }
+        return result;
     }
 
     /**
@@ -185,52 +292,6 @@ public class JwtTokenUtil implements Serializable {
         final Date created = getCreatedDateFromToken(token);
         return !isCreatedBeforeLastPasswordReset(created, lastPasswordReset)
                 && !isTokenExpired(token);
-    }
-
-    /**
-     * 刷新Token
-     *
-     * @param token
-     * @return
-     */
-    public String refreshToken(String token) {
-        String refreshedToken;
-        try {
-            final Claims claims = getClaimsFromToken(token);
-            claims.put(CLAIM_KEY_CREATED, new Date());
-            refreshedToken = generateToken(claims, generateExpirationDate(accessTokenExpiration));
-        } catch (Exception e) {
-            refreshedToken = null;
-        }
-        return refreshedToken;
-    }
-
-    /**
-     * 验证Token
-     *
-     * @param token
-     * @return
-     */
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        Boolean result;
-        try {
-            final String username = getUsernameFromToken(token);
-
-            //数据声明为空只校验token是否过期
-            if (null == userDetails) {
-                result = (!isTokenExpired(token));
-            } else {
-//                final Date created = getCreatedDateFromToken(token);
-//                final Date expiration = getExpirationDateFromToken(token);
-                result = (userDetails.getAccount().equals(username)//匹配帐号
-                        && !isTokenExpired(token)//是否过期
-//                        && !isCreatedBeforeLastPasswordReset(created, user.getLastPasswordResetDate())
-                );
-            }
-        } catch (Exception e) {
-            result = false;
-        }
-        return result;
     }
 
 }
