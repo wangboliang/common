@@ -8,10 +8,7 @@ import org.apache.commons.collections.CollectionUtils;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -145,9 +142,10 @@ public class JwtTokenUtil implements Serializable {
         try {
             List<String> tokenList = cacheMap.get("blacklist");
             if (CollectionUtils.isNotEmpty(tokenList)) {
-                tokenList.add(token);
-                cacheMap.put("blacklist", tokenList);
+                tokenList = new ArrayList<>();
             }
+            tokenList.add(token);
+            cacheMap.put("blacklist", tokenList);
             result = true;
         } catch (Exception e) {
             result = false;
@@ -162,10 +160,12 @@ public class JwtTokenUtil implements Serializable {
      * @return
      */
     Boolean tokenIsOnTheBlacklist(String token) {
-        Boolean result;
+        Boolean result = false;
         try {
             List<String> tokenList = cacheMap.get("blacklist");
-            result = tokenList.contains(token);
+            if (CollectionUtils.isNotEmpty(tokenList)) {
+                result = tokenList.contains(token);
+            }
         } catch (Exception e) {
             result = false;
         }
