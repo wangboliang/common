@@ -32,7 +32,7 @@ public class JwtTokenUtil implements Serializable {
 
     private static Long refreshTokenExpiration = 86400L;
 
-    private static Map<String, List> cacheMap = new HashMap();
+    private static Map<String, Set> cacheMap = new HashMap();
 
     /**
      * 生成Token
@@ -140,12 +140,12 @@ public class JwtTokenUtil implements Serializable {
     Boolean tokenAddToBlacklist(String token) {
         Boolean result;
         try {
-            List<String> tokenList = cacheMap.get("blacklist");
-            if (CollectionUtils.isNotEmpty(tokenList)) {
-                tokenList = new ArrayList<>();
+            Set<String> tokenSet = cacheMap.get("blacklist");
+            if (CollectionUtils.isNotEmpty(tokenSet)) {
+                tokenSet = new HashSet<>();
             }
-            tokenList.add(token);
-            cacheMap.put("blacklist", tokenList);
+            tokenSet.add(token);
+            cacheMap.put("blacklist", tokenSet);
             result = true;
         } catch (Exception e) {
             result = false;
@@ -162,9 +162,9 @@ public class JwtTokenUtil implements Serializable {
     Boolean tokenIsOnTheBlacklist(String token) {
         Boolean result = false;
         try {
-            List<String> tokenList = cacheMap.get("blacklist");
-            if (CollectionUtils.isNotEmpty(tokenList)) {
-                result = tokenList.contains(token);
+            Set<String> tokenSet = cacheMap.get("blacklist");
+            if (CollectionUtils.isNotEmpty(tokenSet)) {
+                result = tokenSet.contains(token);
             }
         } catch (Exception e) {
             result = false;
