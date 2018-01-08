@@ -6,12 +6,16 @@ import com.utils.common.IdWorker;
 import com.utils.database.ExcelToSql;
 import com.utils.database.ListToSql;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 测试类
@@ -80,6 +84,33 @@ public class AppTest {
         //Read Obj from File
         Object o = SerializeUtil.read(path);
         System.out.println(o);
+    }
+
+    @Test
+    public void testMatcher() throws Exception {
+//        String template = "INSERT INTO category_property_set VALUES(:id, :createdBy, :createdTime,:updatedBy,:updatedTime,:deleted\" +\n" +
+//                "                    \",:propertySetId,:categoryId);";
+//        Matcher matcher = Pattern.compile("(:\\w*)").matcher(template);
+//        List<String> fieldList = new ArrayList();
+//        while (matcher.find()) {
+//            fieldList.add(matcher.group().replace(":", ""));
+//        }
+        String regEx = "(?<=(?<!\\\\)\\$\\{)(.*?)(?=(?<!\\\\)\\})";
+        String template = "您的账号于${date}在${device}设备登录，如果不是本人操作，请检查账号密码是否泄漏。";
+        Matcher matcher = Pattern.compile(regEx).matcher(template);
+        List<String> fieldList = new ArrayList<>();
+        while (matcher.find()) {
+            fieldList.add(matcher.group());
+        }
+        String[] contents = new String[]{"2017年12月20日10:20:01", "iphone6"};
+        String messageContent = new String(template);
+        for (String str : contents) {
+            for (String field : fieldList) {
+                messageContent = messageContent.replace("${"+field+"}", str);
+            }
+        }
+        log.info("fieldList is: {}" ,fieldList.toString());
+        log.info("messageContent is: {}" ,messageContent);
     }
 
 }
