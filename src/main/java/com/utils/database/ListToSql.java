@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -99,11 +101,43 @@ public class ListToSql {
             file = new File(pathName);
             //if file does not exists, then create it
 //            if (!file.exists()) {
-                file.createNewFile();
+            file.createNewFile();
 //            }
         } catch (IOException e) {
             log.error("文件创建失败", e);
         }
         return file;
     }
+
+    /**
+     * 流写入文件
+     *
+     * @param inputStream
+     */
+    public static void write(InputStream inputStream, String pathName) {
+        FileOutputStream outputStream = null;
+        try {
+            createFile(pathName);
+
+            outputStream = new FileOutputStream(pathName);
+
+            int bytesRead = -1;
+            byte[] buffer = new byte[4096];
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+        } catch (IOException io) {
+            log.error("IO流操作过程发生异常： {}", io);
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+
+                }
+            }
+        }
+    }
+
 }
