@@ -65,10 +65,10 @@ public class ExcelToSql {
         PrintWriter writer = new PrintWriter(new FileWriter(sqlFile));
         log.info("Writing sql statements to file: {} ", sqlFile);
         log.info("-------------------------------------------------------------------------------");
-        if (null == start || start < 0) {
+        if (null == start || start <= 0) {
             start = sheet.getFirstRowNum() + 1;//排除表头
         }
-        if (null == end || end < 0) {
+        if (null == end || end <= 0) {
             end = sheet.getLastRowNum() + 1;
         }
         for (int rowNum = start; rowNum < end; rowNum++) {
