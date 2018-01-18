@@ -38,7 +38,7 @@ public class DecryptDruid {
         /*String [] keyPair = ConfigTools.genKeyPair(512);
         String privateKey = keyPair[0];
         String publicKey = keyPair[1];*/
-        String decryptword = ConfigTools.decrypt("MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBANJrlCAxqNXWvkQLRtoiaD7e9/EHIl+dATzkcAzHlRqLVpSr25dACy0n0z92A8tRi8j3QvnhITg9p7JIfamowmcCAwEAAQ==", "YiI1x7EnCDS9q6QRdJIm6Yh0XFdbBbVtjOS1IUli29A4QHTcn2t+zHJ2kDMQDZzHbQIiIeU1JXuIF2pkZtJrag==");
+        String decryptword = ConfigTools.decrypt("MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAN9dGI7ljLxGCLgm0jzfgaYrzYaIAyhpz3v1KffP5Pvv0nKhJzjD8vbRghFWakv6xHZHPPwjgZtFVb10HiblEHECAwEAAQ==", "ckVxkqVs5Gr4lSLtJTsa301UJ9TwjHR/empatRoKLhyav2f6YSsti7OmVQfaO7xreYXoIbYPmHo6p11UbY/XJg==");
         System.out.println(decryptword);
     }
 
