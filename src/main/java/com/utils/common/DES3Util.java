@@ -1,201 +1,219 @@
 package com.utils.common;
 
 import lombok.extern.slf4j.Slf4j;
-import sun.misc.BASE64Encoder;
 
 import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESedeKeySpec;
-import javax.crypto.spec.IvParameterSpec;
-import java.security.Key;
+import java.lang.reflect.Constructor;
+import java.security.SecureRandom;
+import java.security.spec.KeySpec;
+import java.util.StringTokenizer;
 
 /**
  * <p>
- * 3DES加密解密
- * key长度为24个字符，不足可补零
- * IV向量必须为8位
- * 使用Base64.encodeToString(byte[], Base64.NO_WRAP);来将加密后的byte[]转为String
- * 使用Base64.decode(String, Base64.NO_WRAP);将转为String的加密字符转换为byte[]
- * new String(byte[])将解密后的byte[]转为String
+ * 山东能开平台DES3加密解密工具类
  * </p>
  *
  * @author wangliang
- * @since 2018/1/15
+ * @since 2018/1/17
  */
 @Slf4j
 public class DES3Util {
 
-    private static final byte[] key = ("f510b8737344cddbca1c8564").getBytes();
-    private static final byte[] keyiv = {'f', 'o', 'a', 'o', 'c', 'u', 'e', 'n'};
+    private static final String algorithm1 = "DES";
+    private static final String algorithm2 = "PBE";
+    private static final String keyFilename = "DES.properties";
 
-    public static void main(String[] args) throws Exception {
+    /**
+     * 加密
+     *
+     * @param bytes
+     * @param algorithm
+     * @return
+     * @throws Exception
+     */
+    public static byte[] encrypt(byte[] bytes, String algorithm) throws Exception {
+        Class clazz = null;
+        if (algorithm.equals("DES")) {
+            clazz = Class.forName("javax.crypto.spec.DESKeySpec");
+        } else if (algorithm.equals("PBE")) {
+            clazz = Class.forName("javax.crypto.spec.PBEKeySpec");
+        }
+        Constructor constructor = clazz.getConstructor(byte[].class);
 
-        byte[] key = ("f510b8737344cddbca1c8564").getBytes();
-        // byte[] keyiv = {0x66,0x6f,0x61,0x6f,0x63,0x75,0x65,0x6e};
-        byte[] keyiv = {'f', 'o', 'a', 'o', 'c', 'u', 'e', 'n'};
+        KeySpec keySpec = (KeySpec) constructor.newInstance(PropertiesUtil.readFile(keyFilename));
 
-        byte[] data = "中国ABCabc1234".getBytes("UTF-8");
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(algorithm1);
 
-        System.out.println("ECB加密解密");
-        byte[] str3 = des3EncodeECB(key, data);
-        byte[] str4 = ees3DecodeECB(key, str3);
-        System.out.println(new BASE64Encoder().encode(str3));
-        System.out.println(new String(str4, "UTF-8"));
+        SecretKey key = keyFactory.generateSecret(keySpec);
 
-        System.out.println("<=============>");
+        Cipher cipher = Cipher.getInstance(algorithm1);
 
-        System.out.println("CBC加密解密");
-        byte[] str5 = des3EncodeCBC(key, keyiv, data);
-        byte[] str6 = des3DecodeCBC(key, keyiv, str5);
-        System.out.println(new BASE64Encoder().encode(str5));
-        System.out.println(new String(str6, "UTF-8"));
+        SecureRandom sr = new SecureRandom();
 
+        cipher.init(Cipher.ENCRYPT_MODE, key, sr);
+
+        byte[] outBytes = cipher.doFinal(bytes);
+
+        return outBytes;
     }
 
     /**
-     * ECB加密,不要IV
+     * 解密
      *
-     * @param key  密钥
-     * @param data 明文
-     * @return Base64编码的密文
+     * @param bytes
+     * @param algorithm
+     * @return
      * @throws Exception
      */
-    public static byte[] des3EncodeECB(byte[] key, byte[] data)
-            throws Exception {
-        byte[] bOut = null;
-        try {
-            Key deskey = null;
-            DESedeKeySpec spec = new DESedeKeySpec(key);
-            SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("desede");
-            deskey = keyfactory.generateSecret(spec);
-
-            Cipher cipher = Cipher.getInstance("desede" + "/ECB/PKCS5Padding");
-
-            cipher.init(Cipher.ENCRYPT_MODE, deskey);
-            bOut = cipher.doFinal(data);
-        } catch (Exception e) {
-            log.error("des3EncodeECB error : {}", e);
+    public static byte[] decrypt(byte[] bytes, String algorithm) throws Exception {
+        Class clazz = null;
+        if (algorithm.equals("DES")) {
+            clazz = Class.forName("javax.crypto.spec.DESKeySpec");
+        } else if (algorithm.equals("PBE")) {
+            clazz = Class.forName("javax.crypto.spec.PBEKeySpec");
         }
-        return bOut;
+        Constructor constructor = clazz.getConstructor(byte[].class);
+
+        KeySpec keySpec = (KeySpec) constructor.newInstance(PropertiesUtil.readFile(keyFilename));
+
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(algorithm1);
+
+        SecretKey key = keyFactory.generateSecret(keySpec);
+
+        Cipher cipher = Cipher.getInstance(algorithm1);
+
+        SecureRandom sr = new SecureRandom();
+
+        cipher.init(Cipher.DECRYPT_MODE, key, sr);
+
+        byte[] outBytes = cipher.doFinal(bytes);
+
+        return outBytes;
     }
 
     /**
-     * ECB加密,不要IV
+     * des加密
      *
-     * @param data 明文
-     * @return 密文
-     * @throws Exception
+     * @param data
+     * @return
      */
-    public static String des3EncodeECB(String data) {
-        String out = null;
+    public static String desEncrypt(String data) {
+        String result = "";
+        StringBuffer sb = new StringBuffer();
         try {
-            byte[] bytes = data.getBytes("UTF-8");
-            out = new BASE64Encoder().encode(des3EncodeECB(key, bytes));
+            //明文
+            byte[] dataBytes = data.getBytes();
+            //加密后的密文
+            byte[] encryptBytes = encrypt(dataBytes, algorithm1);
+
+            //密文二次处理
+            sb.append(encryptBytes.length + "|");
+
+            for (int i = 0; i < encryptBytes.length; ++i) {
+                sb.append(encryptBytes[i] + "|");
+            }
+
+            result = sb.toString();
+            result = result.substring(0, result.length() - 1);
         } catch (Exception e) {
-            log.error("des3EncodeECB error : {}", e);
+            log.error("desEncrypt error : {}", e);
         }
-        return out;
+        return result;
     }
 
     /**
-     * ECB解密,不要IV
+     * pbe加密
      *
-     * @param key  密钥
-     * @param data Base64编码的密文
-     * @return 明文
-     * @throws Exception
+     * @param data
+     * @return
      */
-    public static byte[] ees3DecodeECB(byte[] key, byte[] data) {
-        byte[] bOut = null;
+    public static String pbeEncrypt(String data) {
+        String result = "";
+        StringBuffer sb = new StringBuffer();
         try {
-            Key deskey = null;
-            DESedeKeySpec spec = new DESedeKeySpec(key);
-            SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("desede");
-            deskey = keyfactory.generateSecret(spec);
+            //明文
+            byte[] dataBytes = data.getBytes();
+            //加密后的密文
+            byte[] encryptBytes = encrypt(dataBytes, algorithm2);
 
-            Cipher cipher = Cipher.getInstance("desede" + "/ECB/PKCS5Padding");
+            //密文二次处理
+            sb.append(encryptBytes.length + "|");
 
-            cipher.init(Cipher.DECRYPT_MODE, deskey);
+            for (int i = 0; i < encryptBytes.length; ++i) {
+                sb.append(encryptBytes[i] + "|");
+            }
 
-            bOut = cipher.doFinal(data);
+            result = sb.toString();
+            result = result.substring(0, result.length() - 1);
         } catch (Exception e) {
-            log.error("ees3DecodeECB error : {}", e);
+            log.error("pbeEncrypt error : {}", e);
         }
-        return bOut;
+        return result;
     }
 
     /**
-     * CBC加密
+     * des解密
      *
-     * @param key   密钥
-     * @param keyiv IV
-     * @param data  明文
-     * @return Base64编码的密文
-     * @throws Exception
+     * @param data
+     * @return
      */
-    public static byte[] des3EncodeCBC(byte[] key, byte[] keyiv, byte[] data) {
-        byte[] bOut = null;
+    public static String desDecrypt(String data) {
+        String result = "";
         try {
-            Key deskey = null;
-            DESedeKeySpec spec = new DESedeKeySpec(key);
-            SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("desede");
-            deskey = keyfactory.generateSecret(spec);
+            int byte_i = Integer.parseInt(data.substring(0, data.indexOf("|")));
 
-            Cipher cipher = Cipher.getInstance("desede" + "/CBC/PKCS5Padding");
-            IvParameterSpec ips = new IvParameterSpec(keyiv);
-            cipher.init(Cipher.ENCRYPT_MODE, deskey, ips);
-            bOut = cipher.doFinal(data);
+            byte[] dataBytes = new byte[byte_i];
+
+            data = data.substring(data.indexOf("|") + 1);
+
+            StringTokenizer st = new StringTokenizer(data, "|");
+
+            for (int i = 0; st.hasMoreTokens(); ++i) {
+                byte_i = Integer.parseInt(st.nextToken());
+                dataBytes[i] = (byte) byte_i;
+            }
+
+            byte[] decryptBytes = decrypt(dataBytes, algorithm1);
+
+            result = new String(decryptBytes);
         } catch (Exception e) {
-            log.error("des3EncodeCBC error : {}", e);
+            log.error("desDecrypt error : {}", e);
         }
-        return bOut;
+        return result;
     }
 
-    /**
-     * CBC加密
-     *
-     * @param data 明文
-     * @return 密文
-     * @throws Exception
-     */
-    public static String des3EncodeCBC(String data) {
-        String out = null;
-        try {
-            byte[] bytes = data.getBytes("UTF-8");
-            out = new BASE64Encoder().encode(des3EncodeCBC(key, keyiv, bytes));
-        } catch (Exception e) {
-            log.error("des3EncodeCBC error : {}", e);
-        }
-        return out;
-    }
 
     /**
-     * CBC解密
+     * pbe解密
      *
-     * @param key   密钥
-     * @param keyiv IV
-     * @param data  Base64编码的密文
-     * @return 明文
-     * @throws Exception
+     * @param data
+     * @return
      */
-    public static byte[] des3DecodeCBC(byte[] key, byte[] keyiv, byte[] data) {
-        byte[] bOut = null;
+    public static String pbeDecrypt(String data) {
+        String result = "";
         try {
-            Key deskey = null;
-            DESedeKeySpec spec = new DESedeKeySpec(key);
-            SecretKeyFactory keyfactory = SecretKeyFactory.getInstance("desede");
-            deskey = keyfactory.generateSecret(spec);
+            int byte_i = Integer.parseInt(data.substring(0, data.indexOf("|")));
 
-            Cipher cipher = Cipher.getInstance("desede" + "/CBC/PKCS5Padding");
-            IvParameterSpec ips = new IvParameterSpec(keyiv);
+            byte[] dataBytes = new byte[byte_i];
 
-            cipher.init(Cipher.DECRYPT_MODE, deskey, ips);
+            data = data.substring(data.indexOf("|") + 1);
 
-            bOut = cipher.doFinal(data);
+            StringTokenizer st = new StringTokenizer(data, "|");
+
+            for (int i = 0; st.hasMoreTokens(); ++i) {
+                byte_i = Integer.parseInt(st.nextToken());
+                dataBytes[i] = (byte) byte_i;
+            }
+
+            byte[] decryptBytes = decrypt(dataBytes, algorithm2);
+
+            result = new String(decryptBytes);
         } catch (Exception e) {
-            log.error("des3DecodeCBC error : {}", e);
+            log.error("pbeDecrypt error : {}", e);
         }
-        return bOut;
+        return result;
     }
 
 }
