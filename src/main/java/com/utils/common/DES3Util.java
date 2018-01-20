@@ -12,7 +12,7 @@ import java.util.StringTokenizer;
 
 /**
  * <p>
- * 山东能开平台DES3加密解密工具类
+ * ES3加密解密工具类
  * </p>
  *
  * @author wangliang
