@@ -12,14 +12,14 @@ import java.util.StringTokenizer;
 
 /**
  * <p>
- * ES3加密解密工具类
+ * DES加密解密工具类
  * </p>
  *
  * @author wangliang
  * @since 2018/1/17
  */
 @Slf4j
-public class DES3Util {
+public class DesUtil {
 
     private static final String algorithm1 = "DES";
     private static final String algorithm2 = "PBE";
@@ -44,11 +44,11 @@ public class DES3Util {
 
         KeySpec keySpec = (KeySpec) constructor.newInstance(PropertiesUtil.readFile(keyFilename));
 
-        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(algorithm1);
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(algorithm);
 
         SecretKey key = keyFactory.generateSecret(keySpec);
 
-        Cipher cipher = Cipher.getInstance(algorithm1);
+        Cipher cipher = Cipher.getInstance(algorithm);
 
         SecureRandom sr = new SecureRandom();
 
@@ -78,11 +78,11 @@ public class DES3Util {
 
         KeySpec keySpec = (KeySpec) constructor.newInstance(PropertiesUtil.readFile(keyFilename));
 
-        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(algorithm1);
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(algorithm);
 
         SecretKey key = keyFactory.generateSecret(keySpec);
 
-        Cipher cipher = Cipher.getInstance(algorithm1);
+        Cipher cipher = Cipher.getInstance(algorithm);
 
         SecureRandom sr = new SecureRandom();
 
