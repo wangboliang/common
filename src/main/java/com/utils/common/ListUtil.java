@@ -13,6 +13,23 @@ import java.util.*;
 public class ListUtil {
 
     /**
+     * 去重
+     *
+     * @param list
+     * @return
+     */
+    public static List<String> distinct(List<String> list) {
+        List<String> resultList = new ArrayList<String>();
+        Set<String> set = new HashSet<>(list.size());
+        for (String str : list) {
+            if (set.add(str)) {
+                resultList.add(str);
+            }
+        }
+        return resultList;
+    }
+
+    /**
      * 取差集
      *
      * @param firstArrayList

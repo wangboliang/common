@@ -1,18 +1,17 @@
 package com.test;
 
 import com.domain.User;
-import com.utils.serialize.SerializeUtil;
 import com.utils.common.IdWorker;
+import com.utils.common.ListUtil;
 import com.utils.database.ExcelToSql;
 import com.utils.database.ListToSql;
+import com.utils.serialize.SerializeUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,6 +22,11 @@ import java.util.regex.Pattern;
 @Slf4j
 public class AppTest {
 
+    /**
+     * 测试excel转sql脚本
+     *
+     * @throws Exception
+     */
     @Test
     public void testExcelToSql() throws Exception {
         String xlsFile = "C:\\Users\\dell\\Desktop\\用户信息.xls";
@@ -33,6 +37,11 @@ public class AppTest {
         ExcelToSql.convert(inputStream, sqlFile, template, null, null, null);
     }
 
+    /**
+     * 测试list转sql脚本
+     *
+     * @throws Exception
+     */
     @Test
     public void testListToSql() throws Exception {
         String sqlFile = "C:\\Users\\dell\\Desktop\\user.sql";
@@ -48,13 +57,22 @@ public class AppTest {
         ListToSql.generateSqlScriptFile(list, template, sqlFile);
     }
 
+    /**
+     * 测试序列工具
+     *
+     * @throws Exception
+     */
     @Test
     public void testGenerateUUID() throws Exception {
         Long id = IdWorker.getId();
         log.info("generate id is : {} ", id);
     }
 
-
+    /**
+     * 测试Integer比较
+     *
+     * @throws Exception
+     */
     @Test
     public void tesInteger() throws Exception {
         //JDK.1.8
@@ -86,6 +104,11 @@ public class AppTest {
         System.out.println(o);
     }
 
+    /**
+     * 测试正则表达式API
+     *
+     * @throws Exception
+     */
     @Test
     public void testMatcher() throws Exception {
 //        String template = "INSERT INTO category_property_set VALUES(:id, :createdBy, :createdTime,:updatedBy,:updatedTime,:deleted\" +\n" +
@@ -106,11 +129,31 @@ public class AppTest {
         String messageContent = new String(template);
         for (String str : contents) {
             for (String field : fieldList) {
-                messageContent = messageContent.replace("${"+field+"}", str);
+                messageContent = messageContent.replace("${" + field + "}", str);
             }
         }
-        log.info("fieldList is: {}" ,fieldList.toString());
-        log.info("messageContent is: {}" ,messageContent);
+        log.info("fieldList is: {}", fieldList.toString());
+        log.info("messageContent is: {}", messageContent);
     }
 
+    /**
+     * 测试list处理
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testListUtil() throws Exception {
+        List<String> firstList = new ArrayList<>();
+        firstList.add("1");
+        firstList.add("2");
+        firstList.add("3");
+        firstList.add("4");
+        List<String> secondList = new ArrayList<>();
+        secondList.add("2");
+        secondList.add("3");
+        secondList.add("5");
+        secondList.add("6");
+        List<String> resultList = ListUtil.subtract(firstList, secondList);
+        log.info("subtract : {}", resultList);
+    }
 }
