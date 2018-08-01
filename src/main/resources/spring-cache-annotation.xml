@@ -1,0 +1,30 @@
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cache="http://www.springframework.org/schema/cache"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+  http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/cache
+    http://www.springframework.org/schema/cache/spring-cache.xsd">
+
+    <cache:annotation-driven/>
+
+    <bean id="userService" class="com.cache.UserService"/>
+
+    <!-- generic cache manager -->
+    <!--<bean id="cacheManager"  class="org.springframework.cache.support.SimpleCacheManager">-->
+        <!--<property name="caches">-->
+            <!--<set>-->
+                <!--<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="default"/>-->
+                <!--<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="userCache"/>-->
+            <!--</set>-->
+        <!--</property>-->
+    <!--</bean>-->
+    <bean id="cacheManager"  class="com.cache.spring.MongodbCacheManager">
+        <property name="caches">
+            <set>
+                <bean class="com.cache.spring.MongodbCache" p:name="mongodbCache"/>
+            </set>
+        </property>
+    </bean>
+</beans>
