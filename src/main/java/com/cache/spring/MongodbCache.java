@@ -20,11 +20,6 @@ public class MongodbCache implements Cache {
     MongoTemplate mongoTemplate;
     private String name;
 
-    public MongodbCache(String name, MongoTemplate mongoTemplate) {
-        this.name = name;
-        this.mongoTemplate = mongoTemplate;
-    }
-
     public String getName() {
         return name;
     }
