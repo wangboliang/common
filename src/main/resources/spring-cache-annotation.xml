@@ -1,29 +1,71 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:cache="http://www.springframework.org/schema/cache"
-       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
   http://www.springframework.org/schema/beans/spring-beans.xsd
-    http://www.springframework.org/schema/cache
-    http://www.springframework.org/schema/cache/spring-cache.xsd">
+  http://www.springframework.org/schema/cache
+  http://www.springframework.org/schema/cache/spring-cache.xsd
+  http://www.springframework.org/schema/data/mongo
+  http://www.springframework.org/schema/data/mongo/spring-mongo.xsd
+  http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context.xsd">
 
     <cache:annotation-driven/>
 
-    <bean id="userService" class="com.cache.UserService"/>
+    <bean id="userService" class="com.spring.cache.UserService"/>
 
     <!-- generic cache manager -->
     <!--<bean id="cacheManager"  class="org.springframework.cache.support.SimpleCacheManager">-->
-        <!--<property name="caches">-->
-            <!--<set>-->
-                <!--<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="default"/>-->
-                <!--<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="userCache"/>-->
-            <!--</set>-->
-        <!--</property>-->
+    <!--<property name="caches">-->
+    <!--<set>-->
+    <!--<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="default"/>-->
+    <!--<bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="userCache"/>-->
+    <!--</set>-->
+    <!--</property>-->
     <!--</bean>-->
-    <bean id="cacheManager"  class="com.cache.spring.MongodbCacheManager">
+
+    <!--引入mongodb配置文件-->
+    <context:property-placeholder location="classpath:mongodb.properties"/>
+
+    <!--
+		MongoDB配置部分
+		1.mongo：连接配置
+		2.db-factory：相当于sessionFactory
+		3.mongoTemplate：与数据库接口交互的主要实现类
+	-->
+    <mongo:mongo host="${mongo.host}" port="${mongo.port}">
+        <mongo:options
+                connections-per-host="${mongo.connectionsPerHost}"
+                threads-allowed-to-block-for-connection-multiplier="${mongo.threadsAllowedToBlockForConnectionMultiplier}"
+                connect-timeout="${mongo.connectTimeout}"
+                max-wait-time="${mongo.maxWaitTime}"
+                auto-connect-retry="${mongo.autoConnectRetry}"
+                socket-keep-alive="${mongo.socketKeepAlive}"
+                socket-timeout="${mongo.socketTimeout}"
+                slave-ok="${mongo.slaveOk}"
+                write-number="${mongo.writeNumber}"
+                write-timeout="${mongo.writeTimeout}"
+                write-fsync="${mongo.writeFsync}"/>
+    </mongo:mongo>
+
+    <!-- mongo的工厂，通过它来取得mongo实例,dbname为mongodb的数据库名，没有的话会自动创建 -->
+    <mongo:db-factory id="mongoDbFactory" dbname="${mongo.dbname}" mongo-ref="mongo"/>
+
+    <bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+        <constructor-arg name="mongoDbFactory" ref="mongoDbFactory"/>
+    </bean>
+
+    <bean id="cache" class="com.spring.cache.mongodb.MongoCache">
+        <property name="cacheName" value="mongoCache"></property>
+        <property name="mongoTemplate" ref="mongoTemplate"></property>
+    </bean>
+
+    <bean id="cacheManager" class="com.spring.cache.mongodb.MongoCacheManager">
         <property name="caches">
             <set>
-                <bean class="com.cache.spring.MongodbCache" p:name="mongodbCache"/>
+                <ref bean="cache"></ref>
             </set>
         </property>
     </bean>

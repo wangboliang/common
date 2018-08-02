@@ -1,4 +1,4 @@
-package com.cache.common;
+package com.spring.cache.common;
 
 import lombok.extern.slf4j.Slf4j;
 

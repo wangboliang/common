@@ -1,6 +1,6 @@
-package com.cache.common;
+package com.spring.cache.common;
 
-import com.cache.UserService;
+import com.spring.cache.UserService;
 import lombok.extern.slf4j.Slf4j;
 
 /**

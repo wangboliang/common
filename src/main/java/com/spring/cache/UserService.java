@@ -1,6 +1,6 @@
-package com.cache;
+package com.spring.cache;
 
-import com.cache.common.MyCacheManager;
+import com.spring.cache.common.MyCacheManager;
 import com.domain.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -51,7 +51,7 @@ public class UserService {
      * @return
      */
 //    @Cacheable(value = "userCache", key = "#id")
-    @Cacheable(value = "mongodbCache", key = "#id")
+    @Cacheable(value = "mongoCache", key = "#id.toString()")
     public User queryUserByIdWithSpringCacheAnnotation(Long id) {
         return queryUserByIdFromDb(id);
     }
