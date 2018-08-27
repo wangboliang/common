@@ -19,7 +19,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class Main {
 
     public static void main(String[] args) {
-        ApplicationContext context = new ClassPathXmlApplicationContext("spring-cache-annotation.xml");// 加载 spring 配置文件
+        //加载 spring 配置文件
+        ApplicationContext context = new ClassPathXmlApplicationContext("spring-cache-annotation.xml");
         UserService service = (UserService) context.getBean("userService");
         log.info("first query...");
         User user = service.queryUserByIdWithSpringCacheAnnotation(1L);//第一次查询，应该是数据库查询
