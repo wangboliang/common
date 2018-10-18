@@ -1,11 +1,9 @@
 package com.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * <p>
@@ -19,6 +17,7 @@ import java.io.Serializable;
 @Setter
 @ToString(callSuper = true)
 @AllArgsConstructor
+@Builder
 public class User extends Person {
 
     private Long id;
@@ -28,4 +27,5 @@ public class User extends Person {
     public User() {
         super();
     }
+
 }

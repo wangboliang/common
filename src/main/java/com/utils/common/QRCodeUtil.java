@@ -4,9 +4,11 @@ import com.google.zxing.*;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import sun.misc.BASE64Encoder;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.OutputStream;
 import java.util.Hashtable;
@@ -108,5 +110,29 @@ public class QRCodeUtil {
         return null;
     }
 
-
+    /**
+     * 生成二维编码（Base64字符）
+     *
+     * @param contents
+     */
+    public static String getBase64QRCode(String contents) {
+        Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
+        // 指定纠错等级
+        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.Q);
+        // 指定编码格式
+        hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        String imageString = null;
+        try {
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(contents, BarcodeFormat.QR_CODE, 300, 300, hints);
+            MatrixToImageWriter.writeToStream(bitMatrix, "png", bos);
+            byte[] imageBytes = bos.toByteArray();
+            BASE64Encoder encoder = new BASE64Encoder();
+            imageString = encoder.encode(imageBytes);
+            bos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return imageString;
+    }
 }

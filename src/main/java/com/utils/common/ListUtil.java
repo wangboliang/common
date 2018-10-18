@@ -37,7 +37,6 @@ public class ListUtil {
      * @return
      */
     public static List<String> subtract(List<String> firstArrayList, List<String> secondArrayList) {
-        List<String> resultList = new ArrayList<String>();
         LinkedList<String> result = new LinkedList<String>(firstArrayList);
         HashSet<String> othHash = new HashSet<String>(secondArrayList);
         Iterator<String> iter = result.iterator();
@@ -46,8 +45,7 @@ public class ListUtil {
                 iter.remove();
             }
         }
-        resultList = new ArrayList<String>(result);
-        return resultList;
+        return new ArrayList<String>(result);
     }
 
     /**
@@ -58,7 +56,6 @@ public class ListUtil {
      * @return
      */
     public static List<String> intersection(List<String> firstArrayList, List<String> secondArrayList) {
-        List<String> resultList = new ArrayList<String>();
         LinkedList<String> result = new LinkedList<String>(firstArrayList);
         HashSet<String> othHash = new HashSet<String>(secondArrayList);
         Iterator<String> iter = result.iterator();
@@ -67,8 +64,7 @@ public class ListUtil {
                 iter.remove();
             }
         }
-        resultList = new ArrayList<String>(result);
-        return resultList;
+        return new ArrayList<String>(result);
     }
 
     /**
@@ -79,14 +75,12 @@ public class ListUtil {
      * @return
      */
     public static List<String> union(List<String> firstArrayList, List<String> secondArrayList) {
-        List<String> resultList = new ArrayList<String>();
         Set<String> firstSet = new TreeSet<String>(firstArrayList);
         for (String id : secondArrayList) {
             // 当添加不成功的时候 说明firstSet中已经存在该对象
             firstSet.add(id);
         }
-        resultList = new ArrayList<String>(firstSet);
-        return resultList;
+        return new ArrayList<String>(firstSet);
     }
 
 }

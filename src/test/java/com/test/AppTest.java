@@ -70,6 +70,7 @@ public class AppTest {
 
     /**
      * 测试Integer比较
+     * 两个Integer引用类型==号比较，JDK1.5之后-128-127之间自动拆箱
      *
      * @throws Exception
      */
@@ -81,6 +82,11 @@ public class AppTest {
 
         Integer c = 128, d = 128;
         System.out.print(c == d);
+
+        System.out.print(a == 127);
+        System.out.print(a.equals(127));
+        System.out.print(c == 128);
+        System.out.print(c.equals(128));
     }
 
     /**
@@ -91,7 +97,7 @@ public class AppTest {
     @Test
     public void tesSerializable() throws Exception {
         //Initializes The Object
-        User user = new User(111L, "Object序列化", "11");
+        User user = User.builder().id(111L).name("Object序列化").age("11").build();
         user.setAddress("address");
         System.out.println(user);
 
@@ -153,7 +159,9 @@ public class AppTest {
         secondList.add("3");
         secondList.add("5");
         secondList.add("6");
-        List<String> resultList = ListUtil.subtract(firstList, secondList);
-        log.info("subtract : {}", resultList);
+        log.info("差集 : {}", ListUtil.subtract(firstList, secondList));
+        log.info("差集 : {}", ListUtil.subtract(secondList, firstList));
+        log.info("交集 : {}", ListUtil.intersection(firstList, secondList));
+        log.info("并集 : {}", ListUtil.union(firstList, secondList));
     }
 }
