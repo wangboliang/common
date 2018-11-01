@@ -1,6 +1,7 @@
 package com.test;
 
 import com.domain.User;
+import com.utils.common.ExcelUtil;
 import com.utils.common.IdWorker;
 import com.utils.common.ListUtil;
 import com.utils.database.ExcelToSql;
@@ -163,5 +164,19 @@ public class AppTest {
         log.info("差集 : {}", ListUtil.subtract(secondList, firstList));
         log.info("交集 : {}", ListUtil.intersection(firstList, secondList));
         log.info("并集 : {}", ListUtil.union(firstList, secondList));
+    }
+
+    /**
+     * 大数据量excel导出
+     *
+     * @throws Exception
+     */
+    @Test
+    public void exportBigDataExcel() throws Exception {
+        long beginTime = System.currentTimeMillis();
+        int size = 1000000;
+        ExcelUtil.exportBigDataExcel(1000000);
+        long endTime = System.currentTimeMillis();
+        log.info("{}条数据excel导出用时: {} 毫秒", size, endTime - beginTime);
     }
 }
