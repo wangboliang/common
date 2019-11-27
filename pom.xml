@@ -62,46 +62,53 @@
             <version>${poi.version}</version>
         </dependency>
 
-        <!--apache.commons-->
+        <!-- apache.commons -->
         <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <version>3.2.2</version>
         </dependency>
 
-        <!--jwt-->
+        <!-- jwt -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
             <version>${jwt.version}</version>
         </dependency>
 
-        <!--spring-->
+        <!-- spring -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>4.2.4.RELEASE</version>
         </dependency>
 
-        <!--spring data mongodb-->
+        <!-- spring data mongodb -->
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-mongodb</artifactId>
             <version>1.8.2.RELEASE</version>
         </dependency>
 
-        <!--google zxing-->
+        <!-- google zxing -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
             <version>2.0</version>
         </dependency>
 
-        <!--emoji-->
+        <!-- emoji -->
         <dependency>
             <groupId>com.vdurmont</groupId>
             <artifactId>emoji-java</artifactId>
             <version>4.0.0</version>
+        </dependency>
+
+        <!-- aspect -->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>1.6.2</version>
         </dependency>
     </dependencies>
 

@@ -6,30 +6,23 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
-import java.io.Serializable;
-
 /**
  * <p>
- * Token数据声明
+ *
  * </p>
  *
  * @author wangliang
- * @since 2017/12/20
+ * @since 2019/11/27
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class UserDetails implements Serializable {
+public class EmojiBean {
 
-    /**
-     * 帐号
-     */
-    private String account;
+    @EmojiParse(encode = true, decode = true)
+    private String name;
 
-    /**
-     * 设备唯一标识
-     */
-    private String deviceId;
-
+    @EmojiParse
+    private String emojiStr;
 }

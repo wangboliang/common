@@ -1,6 +1,9 @@
 package com.test;
 
+import com.annotation.EmojiHandler;
+import com.domain.EmojiBean;
 import com.domain.User;
+import com.domain.UserDetails;
 import com.utils.common.ExcelUtil;
 import com.utils.common.IdWorker;
 import com.utils.common.ListUtil;
@@ -79,15 +82,13 @@ public class AppTest {
     public void tesInteger() throws Exception {
         //JDK.1.8
         Integer a = 127, b = 127;
-        System.out.print(a == b);
-
         Integer c = 128, d = 128;
-        System.out.print(c == d);
-
-        System.out.print(a == 127);
-        System.out.print(a.equals(127));
-        System.out.print(c == 128);
-        System.out.print(c.equals(128));
+        log.info("Integer 127 == Integer 127 : {}", a == b);
+        log.info("Integer 128 == Integer 128 : {}", c == d);
+        log.info("Integer 127 == int 127 : {}", a == 127);
+        log.info("Integer 127 equals int 127 : {}", a.equals(127));
+        log.info("Integer 128 == int 128 : {}", c == 128);
+        log.info("Integer 128 equals int 128 : {}", c.equals(128));
     }
 
     /**
@@ -178,5 +179,21 @@ public class AppTest {
         ExcelUtil.exportBigDataExcel(1000000);
         long endTime = System.currentTimeMillis();
         log.info("{}条数据excel导出用时: {} 毫秒", size, endTime - beginTime);
+    }
+
+    /**
+     * emoji注解测试
+     *
+     * @throws Exception
+     */
+    @Test
+    public void emojiParse() throws Throwable {
+        EmojiBean bean = new EmojiBean("\uD83D\uDE04", "\uD83D\uDE04");
+        log.info("before emojiParse: {}", bean);
+        EmojiHandler handler = new EmojiHandler();
+        handler.encode(bean);
+        log.info("after emojiParse encode: {}", bean);
+        handler.decode(bean);
+        log.info("after emojiParse decode: {}", bean);
     }
 }
