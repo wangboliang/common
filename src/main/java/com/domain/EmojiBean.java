@@ -1,6 +1,6 @@
 package com.domain;
 
-import com.annotation.EmojiParse;
+import com.spring.annotation.EmojiParse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

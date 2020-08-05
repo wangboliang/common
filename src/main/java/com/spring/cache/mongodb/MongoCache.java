@@ -204,4 +204,9 @@ public class MongoCache implements Cache {
             return encoder.encodeToString(data);
         }
     }
+
+    @Override
+    public <T> T get(Object o, Callable<T> callable) {
+        return null;
+    }
 }

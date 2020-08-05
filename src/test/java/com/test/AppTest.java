@@ -1,9 +1,8 @@
 package com.test;
 
-import com.annotation.EmojiHandler;
 import com.domain.EmojiBean;
 import com.domain.User;
-import com.domain.UserDetails;
+import com.spring.annotation.EmojiHandler;
 import com.utils.common.ExcelUtil;
 import com.utils.common.IdWorker;
 import com.utils.common.ListUtil;
@@ -83,12 +82,12 @@ public class AppTest {
         //JDK.1.8
         Integer a = 127, b = 127;
         Integer c = 128, d = 128;
-        log.info("Integer 127 == Integer 127 : {}", a == b);
-        log.info("Integer 128 == Integer 128 : {}", c == d);
-        log.info("Integer 127 == int 127 : {}", a == 127);
-        log.info("Integer 127 equals int 127 : {}", a.equals(127));
-        log.info("Integer 128 == int 128 : {}", c == 128);
-        log.info("Integer 128 equals int 128 : {}", c.equals(128));
+        log.info("Integer 127 == Integer 127 : {}", a == b);//true
+        log.info("Integer 128 == Integer 128 : {}", c == d);//false
+        log.info("Integer 127 == int 127 : {}", a == 127);//true
+        log.info("Integer 127 equals int 127 : {}", a.equals(127));//true
+        log.info("Integer 128 == int 128 : {}", c == 128);//true
+        log.info("Integer 128 equals int 128 : {}", c.equals(128));//true
     }
 
     /**
@@ -190,10 +189,9 @@ public class AppTest {
     public void emojiParse() throws Throwable {
         EmojiBean bean = new EmojiBean("\uD83D\uDE04", "\uD83D\uDE04");
         log.info("before emojiParse: {}", bean);
-        EmojiHandler handler = new EmojiHandler();
-        handler.encode(bean);
+        EmojiHandler.parseToHtmlHexadecimal(bean);
         log.info("after emojiParse encode: {}", bean);
-        handler.decode(bean);
+        EmojiHandler.parseToUnicode(bean);
         log.info("after emojiParse decode: {}", bean);
     }
 }

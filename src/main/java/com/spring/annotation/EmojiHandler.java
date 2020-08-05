@@ -1,11 +1,6 @@
-package com.annotation;
+package com.spring.annotation;
 
 import com.utils.common.EmojiUtil;
-import lombok.extern.slf4j.Slf4j;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 
@@ -17,25 +12,9 @@ import java.lang.reflect.Field;
  * @author wangliang
  * @since 2019/11/27
  */
-@Slf4j
-@Aspect
-@Component
 public class EmojiHandler {
 
-    @Pointcut("@annotation(com.annotation.EmojiParse)")
-    public void desPoint() {
-    }
-
-    public Object parse(ProceedingJoinPoint point) throws Throwable {
-        Object[] methodArgs = point.getArgs();
-        for (Object arg : methodArgs) {
-            encode(arg);
-        }
-        Object result = point.proceed();
-        return EmojiUtil.parseToUnicode(result.toString());
-    }
-
-    public Object encode(Object arg) throws Throwable {
+    public static Object parseToHtmlHexadecimal(Object arg) throws Exception {
         Field[] fields = arg.getClass().getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(EmojiParse.class)) {
@@ -52,7 +31,7 @@ public class EmojiHandler {
         return null;
     }
 
-    public Object decode(Object arg) throws Throwable {
+    public static Object parseToUnicode(Object arg) throws Exception {
         Field[] fields = arg.getClass().getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(EmojiParse.class)) {

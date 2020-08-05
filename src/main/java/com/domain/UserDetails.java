@@ -1,6 +1,5 @@
 package com.domain;
 
-import com.annotation.EmojiParse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
