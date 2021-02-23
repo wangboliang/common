@@ -1,6 +1,7 @@
 package com.test;
 
 import com.domain.EmojiBean;
+import com.domain.Person;
 import com.domain.User;
 import com.spring.annotation.EmojiHandler;
 import com.utils.common.ExcelUtil;
@@ -15,7 +16,9 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -193,5 +196,22 @@ public class AppTest {
         log.info("after emojiParse encode: {}", bean);
         EmojiHandler.parseToUnicode(bean);
         log.info("after emojiParse decode: {}", bean);
+    }
+
+    /**
+     * test
+     *
+     * @throws Exception
+     */
+    @Test
+    public void test() throws Throwable {
+        Comparator<User> comparator = (p1, p2) -> p1.getName().compareTo(p2.getName());
+        User p1 = new User(1L,"John", "12");
+        User p2 = new User(2L,"Alice", "15");
+        comparator.compare(p1, p2);             // > 0
+        comparator.reversed().compare(p1, p2);  // < 0
+
+        Consumer<User> greeter = (p) -> System.out.println("Hello, " + p.getName());
+        greeter.accept(p1);
     }
 }
